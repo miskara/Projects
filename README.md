@@ -1,2 +1,3 @@
 # Projects
-All the publishable projects i have
+Root folder of the repository.
+This readme will be updated
