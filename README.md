@@ -18,4 +18,21 @@ in short, what user CAN do:
 	- Order NEW ingredients/mixers
 	- Delete drinks from database
 	- Consume ingredients/mixers by using the order button in the UI
+
 	
+UnityGameprojectMemorygame_C# folder:
+ NOTE! THESE UNITY GAMEPROJECTS ARE STILL WORKS IN PROGRESS! 
+A small memory game. 
+Only scripts included because I am not responsible for all the materials and models!!
+
+
+UnityGameprojectMultiplayer_C# folder:
+ NOTE! THESE UNITY GAMEPROJECTS ARE STILL WORKS IN PROGRESS!
+A single device multiplayer game. Up to 4 players at a time. Players fling "bullets" towards spawning targets on screen.
+Only scripts included because I am not responsible for all the materials and models!!
+
+UnityGameprojectShyDancers_C# folder:
+ NOTE! THESE UNITY GAMEPROJECTS ARE STILL WORKS IN PROGRESS!
+A small game, where the player has to find all hiding targets. If not fast enough, targets will flee behind random hides again.
+Only scripts included because I am not responsible for all the materials and models!!
+
