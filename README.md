@@ -20,10 +20,12 @@ in short, what user CAN do:
 	- Consume ingredients/mixers by using the order button in the UI
 
 	
+	
 UnityGameprojectMemorygame_C# folder:
  NOTE! THESE UNITY GAMEPROJECTS ARE STILL WORKS IN PROGRESS! 
 A small memory game. 
 Only scripts included because I am not responsible for all the materials and models!!
+
 
 
 UnityGameprojectMultiplayer_C# folder:
@@ -31,8 +33,17 @@ UnityGameprojectMultiplayer_C# folder:
 A single device multiplayer game. Up to 4 players at a time. Players fling "bullets" towards spawning targets on screen.
 Only scripts included because I am not responsible for all the materials and models!!
 
+
+
 UnityGameprojectShyDancers_C# folder:
  NOTE! THESE UNITY GAMEPROJECTS ARE STILL WORKS IN PROGRESS!
 A small game, where the player has to find all hiding targets. If not fast enough, targets will flee behind random hides again.
 Only scripts included because I am not responsible for all the materials and models!!
+
+
+SDL_Pohja folder:
+A C++ SDL/OpenGL project, which simulates object collision in a test room. By default the room has no gravitation, but a gravitation can be applied to the room via the code. 
+User can also determine the elasticity of the objects (again through code, this is not made easy... yet) Left and right arrow keys spawn spheres in the room.
+No other shapes yet implemented.
+
 
