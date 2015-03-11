@@ -2,20 +2,20 @@
 
 std::vector<Shape*> Physics::CheckPhysics(std::vector<Shape*> moving_objects, std::vector<Room*> solid_objects){
 
-	/*Puuttuu viel‰ se tuplatsekkaus ettei PALLON NOPEUTTA MUUTETA KAHDESTI*/
+	/*Puuttuu viel√§ se tuplatsekkaus ettei PALLON NOPEUTTA MUUTETA KAHDESTI*/
 
-	/*Pallojen kesken‰inen tˆrm‰ily ja niiden aiheuttamat nopeuden muutokset.
-	Tarkastetaan kaikkien palloparien v‰liset et‰isyydet ja mahdolliset tˆrm‰ykset.*/
-	/*Huomioon otetaan ainoastaan l‰hin tˆrm‰ys per pallo. Eli tˆrm‰ys joka on eniten p‰‰ssyt pallon sis‰lle 
-	tai eniten pallon tˆrm‰ysalueen eli safety zonen sis‰ll‰. Sek‰ varmistamme ettei pallon nopeutta muuteta kahdesti.*/
+	/*Pallojen kesken√§inen t√∂rm√§ily ja niiden aiheuttamat nopeuden muutokset.
+	Tarkastetaan kaikkien palloparien v√§liset et√§isyydet ja mahdolliset t√∂rm√§ykset.*/
+	/*Huomioon otetaan ainoastaan l√§hin t√∂rm√§ys per pallo. Eli t√∂rm√§ys joka on eniten p√§√§ssyt pallon sis√§lle 
+	tai eniten pallon t√∂rm√§ysalueen eli safety zonen sis√§ll√§. Sek√§ varmistamme ettei pallon nopeutta muuteta kahdesti.*/
 	
-	/*TƒMƒ ALGORITMI ON SUOLESTA*/
+	/*T√ÑM√Ñ ALGORITMI ON SUOLESTA*/
 	Shape* nearestCollisionSphere;
 	for (int j = 0; j < (float)moving_objects.size(); j++){
 
 		Gravitation(moving_objects[j], solid_objects[0]);
 		SphereWallCheck(moving_objects[j], solid_objects[0]);
-		/*HIDASTAAA OHJELMAAA SAATANASTI POISTETTAVA!!!!!!!!!!!!!!!!!!!
+		/*HIDASTAAA OHJELMAA!!!! POISTETTAVA!!!!!!!!!!!!!!!!!!!
 		!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 
@@ -46,12 +46,12 @@ Shape* Physics::findNearestCollision(std::vector<Shape*> moving_objects, int num
 	float shortest_distance = NULL;
 	float new_distance;
 	int nearest = -1;
-	/*Etsit‰‰n l‰hin tapahtunut tˆrm‰ys*/
+	/*Etsit√§√§n l√§hin tapahtunut t√∂rm√§ys*/
 	for (int i = 0; i < (int)moving_objects.size(); i++){
 		if (num != i){
 			new_distance = moving_objects[num]->get_position_vector()->distance_to(moving_objects[i]->get_position_vector());
 			if (new_distance < shortest_distance || shortest_distance == NULL){
-				/*Otetaan huomioon vain todelliset tˆrm‰ykset*/
+				/*Otetaan huomioon vain todelliset t√∂rm√§ykset*/
 				if (SphereCollisions(moving_objects[num], moving_objects[i])){
 					shortest_distance = new_distance;
 					nearest = i;
@@ -68,42 +68,42 @@ Shape* Physics::findNearestCollision(std::vector<Shape*> moving_objects, int num
 }
 
 bool Physics::SphereCollisions(Shape* sphereOne, Shape* sphereTwo){
-	/*Lasketaan s‰teiden summa*/
+	/*Lasketaan s√§teiden summa*/
 	float combinedRadiuses = sphereOne->get_radius() + sphereTwo->get_radius();
 	float distance = sphereOne->get_position_vector()->distance_to(sphereTwo->get_position_vector());
 
-	/*Verrataan kappaleiden et‰isyytt‰ ja s‰teiden summaa*/
+	/*Verrataan kappaleiden et√§isyytt√§ ja s√§teiden summaa*/
 	if (distance <= combinedRadiuses){
-		/*Siirret‰‰n palloja takaisinp‰in, etteiv‰t p‰‰dy sis‰kk‰in*/
+		/*Siirret√§√§n palloja takaisinp√§in, etteiv√§t p√§√§dy sis√§kk√§in*/
 		float distance_to_back = (combinedRadiuses - distance) / 2;
-		/*Lasketaan kuinka paljon kutakin komponenttia siirret‰‰n taakse*/
+		/*Lasketaan kuinka paljon kutakin komponenttia siirret√§√§n taakse*/
 		Position* collisionDirection = sphereOne->get_position_vector()->direction_vector_to_position(sphereTwo->get_position_vector());
 		(*collisionDirection) *= distance_to_back;
-		/*Tehd‰‰n siirto*/
+		/*Tehd√§√§n siirto*/
 		(*sphereOne->get_position_vector()) += collisionDirection;
 		(*sphereTwo->get_position_vector()) -= collisionDirection;
 
 		/*Tsekataan kulkeeko pallot kohti toisiaan vai ei
 		jos kulkevat voidaan pallojen suuntaa muuttaa.
-		N‰in v‰ltyt‰‰n pallojen sis‰kk‰in takertumiselta, jos pallot
-		ovat kuitenkin p‰‰tyneet sis‰kk‰in*/
+		N√§in v√§ltyt√§√§n pallojen sis√§kk√§in takertumiselta, jos pallot
+		ovat kuitenkin p√§√§tyneet sis√§kk√§in*/
 		if (dotProductWithNormalvector(sphereOne, sphereTwo) < 0){
 			return true;
 		}else{
-			std::cout << "WARNING: Pallot kulkee sis‰kk‰in! \n";
+			std::cout << "WARNING: Pallot kulkee sis√§kk√§in! \n";
 		}
 	}
 	return false;
 }
 
 float Physics::dotProductWithNormalvector(Shape* sphereOne, Shape* sphereTwo){
-	/*Kahden pallon v‰lisen nopeuden pistetulo normaalivektorin N kanssa*/
+	/*Kahden pallon v√§lisen nopeuden pistetulo normaalivektorin N kanssa*/
 
 	Position* pos = vector_subtraction(sphereOne->get_speed_vector(), sphereTwo->get_speed_vector());
 	float result = pos->dot_product(sphereOne->get_position_vector()->direction_vector_to_position(sphereTwo->get_position_vector()));
 
 	if (result == 0){
-		std::cout << "Physics::dot_product Pallojen keskipisteet p‰‰llekk‰in. (Pistetulo nolla) \n";
+		std::cout << "Physics::dot_product Pallojen keskipisteet p√§√§llekk√§in. (Pistetulo nolla) \n";
 	}
 	return result;
 }
@@ -122,7 +122,7 @@ void Physics::setAfterCollisionSpeed(Shape* sphereOne, Shape* sphereTwo){
 	(*sphereTwo->get_speed_vector()) -= collisionDirection;
 
 	/*Tulostaa kahden pallon systeemin liike-energian. 
-	Energiaa ei saa h‰vit‰ tai tulla lis‰‰!!!!*/
+	Energiaa ei saa h√§vit√§ tai tulla lis√§√§!!!!*/
 	float energy_1 = sphereOne->get_mass()*pow(sphereOne->get_speed_vector()->length(), 2.0f);
 	float energy_2 = sphereTwo->get_mass()*pow(sphereTwo->get_speed_vector()->length(), 2.0f);
 	float result = (energy_1+energy_2)/2;
@@ -134,24 +134,24 @@ void Physics::setAfterCollisionSpeed(Shape* sphereOne, Shape* sphereTwo){
 }
 
 float Physics::getImpulse(Shape* sphereOne, Shape* sphereTwo){
-	/*Kahden kappaleen v‰linen impulssi*/
-	/*Sys‰yskerroin saa arvokseen kappaleiden elastisuuskertoimen keskiarvon*/
+	/*Kahden kappaleen v√§linen impulssi*/
+	/*Sys√§yskerroin saa arvokseen kappaleiden elastisuuskertoimen keskiarvon*/
 	float kerroin = -1.0f + ((sphereOne->get_elasticity() + sphereTwo->get_elasticity()) / 2.0f);
 
 	float osoittaja = dotProductWithNormalvector(sphereOne, sphereTwo);
-	float nimitt‰j‰ = (1.0f / sphereOne->get_mass()) + (1.0f / sphereTwo->get_mass());
+	float nimitt√§j√§ = (1.0f / sphereOne->get_mass()) + (1.0f / sphereTwo->get_mass());
 
-	if (nimitt‰j‰ == 0 || kerroin == 0){ std::cout << "ERROR: Physics::getImpulse \n"; return -1; }
+	if (nimitt√§j√§ == 0 || kerroin == 0){ std::cout << "ERROR: Physics::getImpulse \n"; return -1; }
 	if (osoittaja == 0){ return 0; }
 	if (osoittaja > 0){ std::cout << "Physics::getImpulse Odottamaton impulssin arvo (POSITIIVINEN)\n"; }
 
-	return  kerroin * (osoittaja / nimitt‰j‰);
+	return  kerroin * (osoittaja / nimitt√§j√§);
 }
 
 void Physics::SphereWallCheck(Shape* sphere, Room* room){
-	/*Sein‰tˆrm‰ys*/
-	/*K‰‰nnet‰‰n pallojen suuntaa jo pikkuriikkisen verran ennen sein‰‰.
-	SafetyzoneWALL m‰‰rittelee pallolle kuinka paljon ennen.*/
+	/*Sein√§t√∂rm√§ys*/
+	/*K√§√§nnet√§√§n pallojen suuntaa jo pikkuriikkisen verran ennen sein√§√§.
+	SafetyzoneWALL m√§√§rittelee pallolle kuinka paljon ennen.*/
 	float radius = sphere->get_radius();
 	float elasticy = sphere->get_elasticity();
 	
