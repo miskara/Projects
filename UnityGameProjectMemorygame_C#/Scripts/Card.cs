@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Card : VersionedView{
 
@@ -7,6 +8,7 @@ public class Card : VersionedView{
 	public enum CardState {Flipped,Hidden,Bombed}
 	public CardState state = CardState.Hidden;
 
+	public bool abletoflip = true;
 	public int index;
 	public GameObject cardView;
 	public string CardType;
@@ -15,11 +17,33 @@ public class Card : VersionedView{
 	public Renderer child;
 	public Color faded;
 	bool setTimer = false;
+	public List<Renderer> rlist;
 	float cardTimer;
+	public GameObject character;
+	public Transform spawn;
+	public ParticleSystem ps;
+	public ParticleSystem burp;
+	public Animator anim;
+
+
+	public IEnumerator PlayAndStopV2(){
+		ps.Play ();
+		yield return new WaitForSeconds (1);
+		ps.Stop ();
+		yield return new WaitForSeconds (ps.duration);
+		ps.Clear ();
+	}
 
 	void Start (){
+		ps.Stop ();
+		ps.Clear ();
 		child = GetComponentInChildren<Renderer>();
+		rlist.AddRange( GetComponentsInChildren<Renderer> ());
 		faded = new Color (child.material.color.r, child.material.color.g, child.material.color.b, 0);
+	}
+
+	public void setAnimator(Animator anim){
+		this.anim = anim;
 	}
 
 	public void setPair (Card c){	
@@ -39,6 +63,7 @@ public class Card : VersionedView{
 			if (cardTimer <= 0){
 				cardView.animation.Play();
 				setTimer = false;
+				anim.SetBool ("Revealed",false);
 			}
 		}
 	}
@@ -49,12 +74,17 @@ public class Card : VersionedView{
 		if (state == CardState.Flipped) {
 			cardView.animation ["Card Flip"].speed = 1.0f;
 			cardView.animation.Play();
-			FMOD_StudioSystem.instance.PlayOneShot ("event:/01_sfx/card_flip", transform.position);
-
+			if (CardType == "Fleak")
+				FMOD_StudioSystem.instance.PlayOneShot ("event:/01_sfx/card_flip_fleak", GameObject.Find("Main Camera").transform.position);
+			else if (CardType == "Joejoe")
+				FMOD_StudioSystem.instance.PlayOneShot ("event:/01_sfx/card_flip_joejoe", GameObject.Find("Main Camera").transform.position);
+			else if (CardType == "Morphy")
+				FMOD_StudioSystem.instance.PlayOneShot ("event:/01_sfx/card_flip_morphy", GameObject.Find("Main Camera").transform.position);
+			else
+				FMOD_StudioSystem.instance.PlayOneShot ("event:/01_sfx/card_flip", GameObject.Find("Main Camera").transform.position);
 			yield return new WaitForSeconds (clip.length);
-
+			anim.SetBool ("Revealed",true);
 		}
-		
 		else{
 			cardView.animation["Card Flip"].speed = -1.0f;
 			cardView.animation["Card Flip"].time = clip.length;
@@ -68,6 +98,7 @@ public class Card : VersionedView{
 		setMatch ();
 		yield return 0;
 	}
+
 	public void setMatch(){
 		if(state == CardState.Flipped){
 
@@ -85,15 +116,34 @@ public class Card : VersionedView{
 	public void GenerateCard(string cardType){
 
 		CardType = cardType;
-		cardView.renderer.material.mainTexture = Resources.Load("Graphics/" +CardType)as Texture2D;
+		GameObject resource = Resources.Load("Prefabs/"+cardType) as GameObject;
+		character = GameObject.Instantiate(resource,spawn.position,spawn.rotation) as GameObject;
+		character.transform.parent = cardView.transform;
+		setAnimator (character.GetComponent<Animator> ());
+		if (cardType == "Burpy") {
+			burp = character.GetComponentInChildren<ParticleSystem>();
+			burp.Stop ();
+			burp.Clear ();
+		}
 
 	}
 
 	public void Unflip(){
-
 		state = CardState.Hidden;
 		MarkDirty();
+	}
 
+	public void StartTwist(){
+		StartCoroutine (SpecialTwist ());
+	}
+	public IEnumerator SpecialTwist(){
+		float r = Random.Range (10f, 31f);
+		yield return new WaitForSeconds (r);
+		if(state == CardState.Hidden) {
+			cardView.animation.Play ("SpecialTwist");
+			//yield return new WaitForSeconds (r);
+			StartTwist ();
+		}
 	}
 
 	IEnumerator FadeTo(float aValue, float aTime)
@@ -102,13 +152,18 @@ public class Card : VersionedView{
 		for (float t = 0.0f; t < 1.0f; t += Time.deltaTime / aTime)
 		{
 			Color newColor = new Color(1, 1, 1, Mathf.Lerp(alpha,aValue,t));
-			child.material.color = newColor;
+			foreach (Renderer r in rlist){
+				r.material.color=newColor;
+			}
 			yield return 0;
 		}
 	}
 
 
 	public void fadeOut(){
+		if(CardType.Equals("Burpy")){
+			anim.SetBool ("Ended",true);	
+		}
 		StartCoroutine (FadeTo(0.0f,0.2f));
 	}
 
@@ -117,8 +172,9 @@ public class Card : VersionedView{
 		for (int i=0; i<Playmat.GetPlaymat().cards.Count; i++) {
 			Playmat.GetPlaymat().cards[i].cardTimer = 0f;
 		}
+
 		if (GameSettings.Instance ().difficulty == GameSettings.GameDifficulty.Easy) {
-			if (state == CardState.Hidden && Playmat.GetPlaymat ().NumberOfCardsFlipped != 2) {
+			if (state == CardState.Hidden && Playmat.GetPlaymat ().NumberOfCardsFlipped != 2 && abletoflip) {
 				Playmat.GetPlaymat ().NumberOfCardsFlipped ++;
 				state = CardState.Flipped;
 				MarkDirty ();
@@ -135,8 +191,12 @@ public class Card : VersionedView{
 	}
 
 	void OnTouch(){
+
+		for (int i=0; i<Playmat.GetPlaymat().cards.Count; i++) {
+			Playmat.GetPlaymat().cards[i].cardTimer = 0f;
+		}
 		if (GameSettings.Instance ().difficulty == GameSettings.GameDifficulty.Easy) {
-			if (state == CardState.Hidden && Playmat.GetPlaymat ().NumberOfCardsFlipped != 2) {
+			if (state == CardState.Hidden && Playmat.GetPlaymat ().NumberOfCardsFlipped != 2 && abletoflip) {
 				Playmat.GetPlaymat ().NumberOfCardsFlipped ++;
 				state = CardState.Flipped;
 				MarkDirty ();

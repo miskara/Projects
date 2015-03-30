@@ -13,8 +13,8 @@ public class Grid : MonoBehaviour{
 	public Orientation orientation;
 	public int XCoords;
 	public int YCoords;
-	public int XSpacing;
-	public int YSpacing;
+	public float XSpacing;
+	public float YSpacing;
 	public bool createGrid = false;
 	public bool clearGrid = false;
 	public bool register = false;

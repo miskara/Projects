@@ -3,23 +3,43 @@ using System.Collections;
 
 public class InputBlocker : MonoBehaviour {
 
-	public float inputBlockTime = 0.5f;
-
-	void Start (){
+	void Awake () {
 		gameObject.collider.enabled = false;
 	}
 
-	public void enableBlock () {
+	public void enableBlock (float duration) {
 		gameObject.collider.enabled = true;
-		StartCoroutine(WaitAndDisable());
+		StartCoroutine(WaitAndDisable(duration));
 	}
 	
 	public void disableBlock () {
 		gameObject.collider.enabled = false;
 	}
 
-	IEnumerator WaitAndDisable() {
-		yield return new WaitForSeconds(inputBlockTime);
+	IEnumerator WaitAndDisable(float duration) {
+		yield return new WaitForSeconds(duration);
 		disableBlock ();
+	}
+
+	public void enableBlockTutorial () {
+		gameObject.collider.enabled = true;
+		StartCoroutine(WaitAndDisableTutorial());
+	}
+
+	IEnumerator WaitAndDisableTutorial() {
+		yield return new WaitForSeconds(6f);
+		disableBlock ();
+	}
+
+	public void blockOn () {
+		gameObject.collider.enabled = true;
+	}
+
+	public void blockOff () {
+		gameObject.collider.enabled = false;
+	}
+
+	public void endBlock () {
+		gameObject.collider.enabled = true;
 	}
 }

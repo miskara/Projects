@@ -11,7 +11,13 @@ public class InputController : MonoBehaviour
 
 	public virtual void Update(){
 		if (Input.GetMouseButtonDown(0) || Input.touchCount == 1){
-			OnTouchBegan();
+			if (!touchHolding){
+				touchHolding = true;
+				OnTouchBegan();
+			}
+		}
+		if (Input.GetMouseButtonUp(0) || Input.touchCount == 0){
+			touchHolding = false;
 		}
 	}
 

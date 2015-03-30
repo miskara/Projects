@@ -4,19 +4,14 @@ using System.Collections;
 public class GiantBug : MonoBehaviour {
 	
 	public Transform center;
-	public float degreesPerSecond = -9000.0f;
+	public float degreesPerSecond = 1f;
 	
 	private Vector3 v;
 	private Quaternion q;
-	
-	void Start() {
-		v = transform.position - center.position;
-		q = transform.rotation;
-	}
+
 	
 	void Update () {
-		v = Quaternion.AngleAxis (degreesPerSecond * Time.deltaTime, Vector3.up) * v;
-		transform.position = center.position + v;
-		transform.Rotate (0, 0, -degreesPerSecond * Time.deltaTime);
+		transform.RotateAround (center.position, Vector3.up, degreesPerSecond * Time.deltaTime);
+
 	}
 }

@@ -6,7 +6,8 @@ public class GameController : MonoBehaviour {
 	RaycastHit hit;
 	Ray ray;
 	public enum GameDifficulty {Easy, Medium, Hard}
-	public static int levels = 1;
+	public static int unlockedLVLS = 1;
+	public static int currentLVL=1;
 	public static GameDifficulty diff = GameDifficulty.Easy;
 
 
@@ -16,19 +17,7 @@ public class GameController : MonoBehaviour {
 	
 	}
 	void Start () {
-		levels = PlayerPrefs.GetInt ("levels");
+		unlockedLVLS = PlayerPrefs.GetInt ("levels");
 	}
 
-	void Update () {
-	
-		if (InputController.HasTouchBegan ()) {
-			Debug.Log ("Touch Detected!!");
-			ray = Camera.main.ScreenPointToRay (InputController.GetTouchPosition());
-			if (Physics.Raycast (ray, out hit)) {
-				if (hit.collider.gameObject.name.Contains ("Play")) {
-					Application.LoadLevel (1); 
-				}
-			}
-		}
-	}
 }

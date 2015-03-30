@@ -8,7 +8,7 @@ using System.Collections.Generic;
 public sealed class PoolingSystem : MonoBehaviour {
 
 
-
+	static Vector3 nul = new Vector3 (0f, 0f, 0f);
 	GameObject system;
 	[System.Serializable]
 	public class PoolingItems
@@ -37,14 +37,14 @@ public sealed class PoolingSystem : MonoBehaviour {
 	
 	void Awake ()
 	{
-		DontDestroyOnLoad(this);
+		//DontDestroyOnLoad(this);
 
 		if (Instance) {
 			Destroy (this.gameObject);
 		}
 		else {
 			Instance = this;
-			DontDestroyOnLoad(this);
+		//	DontDestroyOnLoad(this);
 				}
 	}
 	
@@ -73,8 +73,13 @@ public sealed class PoolingSystem : MonoBehaviour {
 	
 	public static void DestroyAPS(GameObject myObject)
 	{
+		if (myObject.GetComponent<Rigidbody> () != null) {
+			myObject.rigidbody.velocity = nul;
+			myObject.rigidbody.angularVelocity = nul;
+		}
+		myObject.transform.position = nul;
 		myObject.SetActive(false);
-		myObject.transform.position = new Vector3 (0.0f, 0.0f, 0.0f);
+
 	}
 
 	
@@ -96,7 +101,34 @@ public sealed class PoolingSystem : MonoBehaviour {
 			newObject.transform.position = itemPosition;
 			newObject.transform.rotation = itemRotation;
 			newObject.SetActive(true);
-			if(newObject.GetComponent<Rigidbody>()!=null) newObject.rigidbody.velocity = new Vector3(0,0,0);
+
+			if(newObject.GetComponent<Rigidbody>()!=null){
+				newObject.rigidbody.velocity = nul;
+				newObject.rigidbody.angularVelocity = nul;
+				newObject.rigidbody.detectCollisions=false;
+				newObject.rigidbody.useGravity=false;
+			}
+
+			return newObject;
+		}
+		Debug.Log("Warning: Pool is out of objects.\nTry enabling 'Pool Expand' option.");
+		return null;
+	}
+
+	public GameObject InstantiateAPS (string itemType, Vector3 itemPosition)
+	{
+		GameObject newObject = GetPooledItem(itemType);
+		if(newObject != null) {
+			newObject.transform.position = itemPosition;
+			newObject.SetActive(true);
+
+			if(newObject.GetComponent<Rigidbody>()!=null){
+				newObject.rigidbody.velocity = nul;
+				newObject.rigidbody.angularVelocity = nul;
+				newObject.rigidbody.detectCollisions=false;
+				newObject.rigidbody.useGravity=false;
+			
+			}
 			return newObject;
 		}
 		Debug.Log("Warning: Pool is out of objects.\nTry enabling 'Pool Expand' option.");
@@ -169,7 +201,7 @@ public sealed class PoolingSystem : MonoBehaviour {
 		for (int i=0; i<poolingItems.Length; i++) {
 			for (int j=0; j<pooledItems[i].Count; j++) {
 				pooledItems [i] [j].SetActive (false);
-				pooledItems[i][j].transform.position=new Vector3(0,0,0);
+				pooledItems[i][j].transform.position=nul;
 			}
 		}
 	}

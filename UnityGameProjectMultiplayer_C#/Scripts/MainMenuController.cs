@@ -6,41 +6,59 @@ public class MainMenuController : MonoBehaviour {
 
 	public GameObject[] worlds;
 	public GameObject[] levels;
-	void Awake() {
+	public GameObject sounds;
+	FMOD.Studio.Bus masterBus;
+	
+	public Sprite spriteSoundOff;
+	public Sprite spriteSoundOn;
 
-		for (int i = 1; i<4; i++) {
-			Image image = levels[i-1].GetComponent<Image>();
-			image.color = new Color (image.color.r, image.color.g, image.color.b, 0.176470f);
-		}
-		for (int i=0; i<1; i++) {
-			Image image = levels[i].GetComponent<Image>();
-			levels[i].GetComponent<Image>().color = new Color(image.color.r,image.color.g,image.color.b,1f);
-		}
-	}
 
 	void Start () {
 
+		FMOD.Studio.System system = FMOD_StudioSystem.instance.System;
+		system.getBus("bus:/", out masterBus);
+		
+		if (!PlayerPrefs.HasKey("muted")){
+			PlayerPrefs.SetInt ("muted", 0);
+		}
+		
+		if (PlayerPrefs.GetInt ("muted") == 1) {
+			masterBus.setMute (true);
+			sounds.GetComponent<Image>().sprite=spriteSoundOff;
+		} else if (PlayerPrefs.GetInt ("muted") == 0) {
+			masterBus.setMute (false);
+			sounds.GetComponent<Image>().sprite=spriteSoundOn;
+		}
 
 
+	}
 
+
+	public void Mute () {
+		if (PlayerPrefs.GetInt ("muted") == 1) { // UNMUTE
+			masterBus.setMute (false);
+			PlayerPrefs.SetInt ("muted", 0);
+			sounds.GetComponent<Image>().sprite=spriteSoundOn;
+		} 
+		else { // MUTE
+			masterBus.setMute (true);
+			PlayerPrefs.SetInt ("muted", 1);
+			sounds.GetComponent<Image>().sprite=spriteSoundOff;
+		}
 	}
 
 	void Update () {}
 
 	public void SelectWorld(int world) {
-		PlayerPrefs.SetInt ("Difficulty", world);
-		PlayerPrefs.Save ();
-		Application.LoadLevel (1);
+		Application.LoadLevel (world);
 	}
 
-
+	public void Credits (){
+	
+		Application.LoadLevel (4);
+	}
 
 	public void SelectLevel(int level) {
-		//if (PlayerPrefs.GetInt ("Level") < level) {
-		//}
-		//else {
-		//PlayerPrefs.SetInt ("CurrentLevel", level);
-		//PlayerPrefs.Save ();
 		Application.LoadLevel (level);
 	}
 

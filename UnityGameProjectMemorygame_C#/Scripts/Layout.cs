@@ -24,6 +24,7 @@ public class Layout {
 		foreach(Slot slot in go.GetComponentsInChildren<Slot>()){
 			slots.Add(slot);
 		}
+
 		return go;
 	}
 }

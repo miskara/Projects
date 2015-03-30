@@ -3,15 +3,15 @@ using System.Collections;
 
 public class ControllingCameraAspectScript : MonoBehaviour
 {
-	public float aspectX;
-	public float aspectY;
+	//public float aspectX;
+	//public float aspectY;
 	// Use this for initialization
 	void Start()
 	{
 		// set the desired aspect ratio (the values in this example are
 		// hard-coded for 16:9, but you could make them into public
 		// variables instead so you can set them at design time)
-		float targetaspect = aspectX / aspectY;
+		float targetaspect = 11f/ 16f;
 		
 		// determine the game window's current aspect ratio
 		float windowaspect = (float)Screen.width / (float)Screen.height;

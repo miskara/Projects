@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class TouchDragPowerV2: TouchLogicV2 /*MonoBehaviour*/
-{
-	
-	public int player;								// playerID
+public class TouchDragPowerV2: TouchLogicV2{	
 
+	public int player;								// playerID
+	public int maxBullets = 10;
+	public int bullets=0;
 	public GameObject clone;						// used to clone the spawnable flea-bullet
 	public GameObject cube;							// the launchable object
 	private PoolingSystem poolingSystem;			// the instance pool;
@@ -13,42 +13,71 @@ public class TouchDragPowerV2: TouchLogicV2 /*MonoBehaviour*/
 	GUITexture myTex;								// player area
 	Vector2 touchStart;								// touch position begin
 	public Color orig;
-	
+	public float maxpower,minpower;
 	public static bool gameEnded;					// is the game ended?
 	private bool touched = false;					// is this player area already touched?
-	bool overHeat = false;
+	//bool overHeat = false;
+	public bool launchpadReady = true;
 	public bool gamestart;
-
+	public bool gameEnd;
 	public Transform spawn;							// spawn point for the object
 	public float destroyTime = 5.0f;				// time in which the object will disappear from the scene
-	public float fmultiply = 1.001f;				// multiplier to make the object speed more pleasant
+	public float fmultiply/* = 1f*/;					// multiplier to make the object speed more pleasant
 	private float holdTime = 0.0f;					// how long the player has touched the screen (affects the power)
 	public float power;								// total power
 	public float gravity;
 	public float overheatingMeter;
-	public float upvectorpower;
-	
+	public float upvectorpower = 150f;
+	public ParticleSystem prtclOverHeat;
+	public ParticleSystem lpadRdy;
+
+	FMOD.Studio.EventInstance launchEvent;
+	FMOD.Studio.ParameterInstance launchParam;
+	Vector3 camPos;
+
+	public void StartGame(){
+		gamestart = true;
+	}
+
 	void Start (){
+		prtclOverHeat.Stop ();
+		prtclOverHeat.particleSystem.renderer.sortingLayerName = "UI";
+		lpadRdy.Stop ();
+		lpadRdy.particleSystem.renderer.sortingLayerName = "UI";
 		gamestart = false;
-		upvectorpower = 1000f;
 		overheatingMeter = 1.0f;
 		gameEnded = false;
 		poolingSystem = PoolingSystem.Instance;
 		cube = Resources.Load ("Prefabs/Fleak" + player) as GameObject;
-		name = cube.name;
 		Physics.gravity = new Vector3 (0f, -70, 0f);
 		myTex = this.guiTexture;
 		gameEnded = false;
-		InvokeRepeating ("Cooldown",0f,0.15f);
-
 		orig = launchpad.renderer.material.color;
+		launchpad.renderer.material.SetColor("_Color",Color.Lerp(orig,Color.black,0.5f));
+
+		launchEvent = FMOD_StudioSystem.instance.GetEvent ("event:/01_sfx/flea_launch");
+		launchEvent.getParameter("launch", out launchParam);
+		camPos = GameObject.Find ("Main Camera").transform.position;
+
+
+	}
+
+
+	public IEnumerator PlayAndStopV2(ParticleSystem ps){
+		ps.Play ();
+		yield return new WaitForSeconds (1);
+		ps.Stop ();
+		yield return new WaitForSeconds (ps.duration);
+		ps.Clear ();
 	}
 
 	public void FirstFleak(){
-		clone = poolingSystem.InstantiateAPS (name, spawn.position, spawn.rotation);
+		clone = poolingSystem.InstantiateAPS (cube.name, spawn.position, spawn.rotation);
+		launchpad.renderer.material.SetColor("_Color",Color.Lerp(orig,Color.black,0f));
 	}
 	public void rmFirstFleak(){
 		PoolingSystem.DestroyAPS (clone);
+		launchpad.renderer.material.SetColor("_Color",Color.Lerp(orig,Color.black,0.5f));
 	}
 
 	public void ScoreScreen (){
@@ -57,33 +86,35 @@ public class TouchDragPowerV2: TouchLogicV2 /*MonoBehaviour*/
 		if (InputController.HasTouchBegan ()) {
 			ray = Camera.main.ScreenPointToRay (InputController.GetTouchPosition ());
 			if (Physics.Raycast (ray, out hit)) {
-				if (hit.collider.name.Contains ("Burpy")) {
-					Application.LoadLevel (0);
+				if (hit.collider.name.Contains ("Control")) {
+					Application.LoadLevel ("menu");
 					gameEnded = false;
 					PoolingSystem.Instance.DeactiveAll ();
 				}
 			}
 		}
 	}
-	
 
-	void Cooldown(){
-
-		if (overheatingMeter >= 1f) overheatingMeter = 1f;
-		if (overheatingMeter < 0.35f && !overHeat){
-			FMOD_StudioSystem.instance.PlayOneShot ("event:/01_sfx/launchpad_overheat", transform.position);
-			overHeat = true;
+	public IEnumerator BulletCooldown(){
+		launchpadReady = false;
+		prtclOverHeat.Play ();
+		CancelInvoke ("Cooldown");
+		FMOD_StudioSystem.instance.PlayOneShot ("event:/01_sfx/launchpad_overheat", camPos);
+		FMOD_StudioSystem.instance.PlayOneShot ("event:/01_sfx/launchpad_cooldown", camPos);
+		for (int i = 0; i < 5; i++) {
+			launchpad.renderer.material.SetColor("_Color",Color.Lerp(Color.black,orig,(float)i/(5)));
+			yield return new WaitForSeconds(1.0f);
 		}
-		if (overheatingMeter >=  0.35f && overHeat){
-			FMOD_StudioSystem.instance.PlayOneShot ("event:/01_sfx/launchpad_cooldown", transform.position);
-			overHeat = false;
-		}
+		//yield return new WaitForSeconds (5.0f);
+		launchpadReady = true;
+		StartCoroutine (PlayAndStopV2(lpadRdy));
+		FMOD_StudioSystem.instance.PlayOneShot ("event:/01_sfx/launchpad_ready", camPos);
+		prtclOverHeat.Stop ();
+		InvokeRepeating ("Cooldown",0f,0.15f);
+	}
 
-		if (overheatingMeter < 1){
-			overheatingMeter +=(overheatingMeter/10)+0.01f;
-		}
-		launchpad.renderer.material.SetColor("_Color",Color.Lerp(Color.black,orig,overheatingMeter));
-
+	public void Cooldown(){
+		launchpad.renderer.material.SetColor("_Color",Color.Lerp(orig,Color.black,(float)bullets/(maxBullets+1)));
 	}
 
 	public override void OnTouchBegan (){
@@ -120,40 +151,62 @@ public class TouchDragPowerV2: TouchLogicV2 /*MonoBehaviour*/
 			}
 		}
 	}
-
-	public IEnumerator DestroyFlea (GameObject obj){
-		for (float timer = 3; timer >= 0; timer -= Time.deltaTime){
-			GameObject[] list = GameObject.FindGameObjectsWithTag("Target");
-			for(int i = 0; i< list.Length; i++){
-				if(obj.renderer.bounds.Intersects(list[i].renderer.bounds))
-					break;
-			}
-			yield return 0;
-		}
-		FMOD_StudioSystem.instance.PlayOneShot ("event:/01_sfx/flea_poof", transform.position);
-		obj.rigidbody.velocity = new Vector3 (0f, 0f, 0f);
+	public void DestroyFleaInstant(GameObject obj){
+		if(clone!=null)
 		PoolingSystem.DestroyAPS (obj);
-		yield return null;
+		bullets -= 1;
+		Cooldown ();
+	}
+
+	public void calcPower(){
+		Vector2 endTouch = new Vector2 (currPos.x, currPos.y);							// touch end position						
+		power = fmultiply / (holdTime*holdTime);															// power
+		Vector2 shootVector = endTouch - touchStart;									// direction of the shot
+		if(power<minpower)power=minpower;
+		if(power>maxpower)power=maxpower;
+		upvectorpower = Mathf.Sqrt (Mathf.Pow (shootVector.x,2)+Mathf.Pow (shootVector.y,2))*power;
+		if (shootVector.magnitude < 60) {
+			clone.GetComponent<Bullet>().StopAllCoroutines();
+			clone.GetComponent<Bullet>().StartCoroutine ("DestroyFlea",0.5f);
+		}
+		clone.rigidbody.detectCollisions=true;
+		clone.rigidbody.useGravity=true;
+		clone.rigidbody.AddForce (shootVector.x*power,upvectorpower,shootVector.y*power, ForceMode.Acceleration); 			 	 // add force to the object towards the direction	
+
 	}
 
 	public IEnumerator endTouch (){
-		if(overheatingMeter>0.35f){
-			StartCoroutine (DestroyFlea(clone));																			
-			Vector2 endTouch = new Vector2 (currPos.x, currPos.y);							// touch end position						
-			power = fmultiply / (holdTime);													// power
-			Vector2 shootVector = endTouch - touchStart;									// direction of the shot
-			Vector3 shootVec3d = new Vector3 (shootVector.x*power, upvectorpower, shootVector.y*power);				// give the shot a nice parable
-			clone.rigidbody.AddForce ((shootVec3d), ForceMode.Impulse); 					// add force to the object towards the direction
-			FMOD_StudioSystem.instance.PlayOneShot ("event:/01_sfx/flea_launch", transform.position); // play launch sound
-			FMOD_StudioSystem.instance.PlayOneShot ("event:/01_sfx/launchpad_heat", transform.position);
-			overheatingMeter -= 0.35f;
+		if(launchpadReady){
+			if(clone != null){
+				clone.GetComponent<Bullet>().StartCoroutine ("DestroyFlea",3.0f);
+				clone.GetComponent<Bullet>().anim.SetBool("Shott",true);
+			}
+			calcPower ();
+			if(bullets>=maxBullets){
+				launchParam.setValue((float)bullets/(float)maxBullets);
+				launchEvent.start();
+				StartCoroutine (BulletCooldown());
+				yield return new WaitForSeconds (5.0f);	
+			}
+			else{
+				launchParam.setValue((float)bullets/(float)maxBullets);
+				launchEvent.start();
+			}
 			power = 0.0f;																	// set power back to 0.0f
 			touchStart = spawn.position;													// "null" the touch
 			touched = false;																// the player area is no longer touched
 			clone = null;																	// prepare for next bullet
-			yield return new WaitForSeconds (0.05f);										// delay in spawn of bullets
-			clone = poolingSystem.InstantiateAPS (name, spawn.position, spawn.rotation);	// spawn the next bullet
-			StopCoroutine (DestroyFlea (clone));
+			yield return new WaitForSeconds (0.1f);											// delay in spawn of bullets
+			if(gameEnd == false){
+			clone = poolingSystem.InstantiateAPS (cube.name, spawn.position, spawn.rotation);	// spawn the next bullet,
+			clone.GetComponent<Animator>().SetBool("Shott",false);
+			clone.GetComponent<Bullet>().StopAllCoroutines();
+			clone.rigidbody.detectCollisions=false;
+			clone.rigidbody.useGravity=false;
+			clone.collider.enabled=true;
+			bullets++;
+			Cooldown();
+			}
 		}
 	}
 
