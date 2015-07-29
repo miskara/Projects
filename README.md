@@ -41,9 +41,4 @@ A small game, where the player has to find all hiding targets. If not fast enoug
 Only scripts included because I am not responsible for all the materials and models!!
 
 
-SDL_Pohja folder:
-A C++ SDL/OpenGL project, which simulates object collision in a test room. By default the room has no gravitation, but a gravitation can be applied to the room via the code. 
-User can also determine the elasticity of the objects (again through code, this is not made easy... yet) Left and right arrow keys spawn spheres in the room.
-No other shapes yet implemented.
-
 
