@@ -1,0 +1,196 @@
+---
+swagger: "2.0"
+info:
+  description: Rekrytehtävä
+  version: 1.0.0
+  title: Rekrytehtävä
+host: virtserver.swaggerhub.com
+basePath: /miskara/Rekrytehtava/1.0.0
+tags:
+- name: Henkilo
+  description: Henkilöt
+- name: Tapahtumat
+  description: Tapahtumat
+schemes:
+- https
+paths:
+  /person:
+    get:
+      tags:
+      - Henkilo
+      summary: Hae henkilö ja tapahtumat
+      description: Palauttaa henkilö-taulun sisällön ja henkilöiden tapahtumat
+      operationId: getPersonAndEvents
+      produces:
+      - application/xml
+      - application/json
+      parameters:
+      - name: Nimi
+        in: query
+        description: Palautettavan henkilön nimi
+        required: true
+        type: string
+      - name: Tyyppi
+        in: query
+        description: Palautettavien tapahtumien tyyppi
+        required: true
+        type: string
+      responses:
+        200:
+          description: Lista palautettu
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/inline_response_200'
+        400:
+          description: Virhe
+          schema:
+            $ref: '#/definitions/inline_response_400'
+  /event:
+    get:
+      tags:
+      - Tapahtumat
+      summary: Hae tapahtumat ja henkilön nimi
+      description: Palauttaa Tapahtuma-taulun rivit ja niihin liittyvän henkilön nimen
+      operationId: getEventsByTypeOrTime
+      produces:
+      - application/xml
+      - application/json
+      parameters:
+      - name: Tyyppi
+        in: query
+        description: Palautettavien tapahtumien tyyppi
+        required: false
+        type: string
+      - name: Aika
+        in: query
+        description: Palautettavan tapahtuman aikaleima
+        required: false
+        type: string
+        format: date-time
+      responses:
+        200:
+          description: Lista palautettu
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/inline_response_200_1'
+        400:
+          description: Virhe
+          schema:
+            $ref: '#/definitions/inline_response_400'
+    post:
+      tags:
+      - Tapahtumat
+      summary: Lisää uusi tapahtuma
+      description: Luo uuden tapahtuman henkilölle
+      operationId: lisääTapahtuma
+      consumes:
+      - application/x-www-form-urlencoded
+      produces:
+      - application/xml
+      - application/json
+      parameters:
+      - name: TapahtumanID
+        in: path
+        description: tapahtuman tunnus
+        required: true
+        type: integer
+        format: int64
+      - name: HenkilonID
+        in: path
+        description: henkilön tunnus
+        required: true
+        type: string
+      - name: Tyyppi
+        in: path
+        description: tapahtuman tyyppi
+        required: true
+        type: string
+      - name: Aika
+        in: path
+        description: tapahtuman aikaleima
+        required: true
+        type: string
+        format: date-time
+      responses:
+        405:
+          description: Invalid input
+    delete:
+      tags:
+      - Tapahtumat
+      summary: Poista tapahtuma
+      description: Poistaa tapahtuman
+      operationId: poistaTapahtuma
+      produces:
+      - application/xml
+      - application/json
+      parameters:
+      - name: TapahtumaID
+        in: path
+        description: Poistettava tapahtuma
+        required: true
+        type: integer
+        format: int64
+      responses:
+        400:
+          description: Virheellinen ID
+        404:
+          description: Tapahtumaa ei löydy
+definitions:
+  Henkilo:
+    type: object
+    properties:
+      HenkiloID:
+        type: integer
+        format: int64
+      Nimi:
+        type: string
+      Syntymäaika:
+        type: string
+        format: date-time
+  Tapahtumat:
+    type: object
+    properties:
+      TapahtumaID:
+        type: integer
+        format: int64
+      HenkiloID:
+        type: integer
+        format: int64
+      Tyyppi:
+        type: string
+      Aika:
+        type: string
+        format: date-time
+    xml:
+      name: Henkilo
+  inline_response_200:
+    type: object
+    properties:
+      HenkiloID:
+        type: integer
+      Syntymäaika:
+        type: string
+        format: date-time
+      TapahtumaID:
+        type: integer
+  inline_response_400:
+    type: object
+    properties:
+      message:
+        type: string
+  inline_response_200_1:
+    type: object
+    properties:
+      TapahtumaID:
+        type: integer
+      HenkiloID:
+        type: integer
+      Tyyppi:
+        type: string
+      Aika:
+        type: string
+        format: date-time
+      Nimi:
+        type: string

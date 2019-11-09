@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  
+  <xs:element name="items" type="items"></xs:element>
+
+  <xs:complexType name="item">
+    <xs:sequence minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="name" type="xs:ID"></xs:element>
+      <xs:element minOccurs="0" name="children" type="items"></xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="items">
+    <xs:sequence minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="item" type="item"></xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>
