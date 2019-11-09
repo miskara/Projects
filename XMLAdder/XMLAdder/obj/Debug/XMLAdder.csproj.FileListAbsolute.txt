@@ -1,0 +1,6 @@
+C:\Users\mrn\source\repos\XMLAdder\XMLAdder\obj\Debug\XMLAdder.csprojAssemblyReference.cache
+C:\Users\mrn\source\repos\XMLAdder\XMLAdder\bin\Debug\XMLAdder.exe.config
+C:\Users\mrn\source\repos\XMLAdder\XMLAdder\bin\Debug\XMLAdder.exe
+C:\Users\mrn\source\repos\XMLAdder\XMLAdder\bin\Debug\XMLAdder.pdb
+C:\Users\mrn\source\repos\XMLAdder\XMLAdder\obj\Debug\XMLAdder.exe
+C:\Users\mrn\source\repos\XMLAdder\XMLAdder\obj\Debug\XMLAdder.pdb

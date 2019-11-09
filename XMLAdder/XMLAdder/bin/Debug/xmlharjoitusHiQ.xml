@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<items>
+  <item>
+    <name>foo</name>
+    <children>
+      <item>
+        <name>foo2</name>
+        <children>
+          <item>
+            <name>foo45</name>
+            <children>
+              <item>
+                <name>kolmastesti</name>
+              </item>
+            </children>
+            <children>
+              <item>
+                <name>neljästesti</name>
+              </item>
+            </children>
+          </item>
+          <item>
+            <name>foo46</name>
+          </item>
+          <item>
+            <name>tokatesti</name>
+          </item>
+        </children>
+      </item>
+      <item>
+        <name>ekatesti</name>
+      </item>
+    </children>
+  </item>
+  <item>
+    <name>loremIpsum</name>
+  </item>
+</items>

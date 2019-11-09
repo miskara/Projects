@@ -1,0 +1,6 @@
+C:\Users\mrn\source\repos\XMLPars\XMLPars\obj\Debug\XMLPars.csprojAssemblyReference.cache
+C:\Users\mrn\source\repos\XMLPars\XMLPars\bin\Debug\XMLPars.exe.config
+C:\Users\mrn\source\repos\XMLPars\XMLPars\bin\Debug\XMLPars.exe
+C:\Users\mrn\source\repos\XMLPars\XMLPars\bin\Debug\XMLPars.pdb
+C:\Users\mrn\source\repos\XMLPars\XMLPars\obj\Debug\XMLPars.exe
+C:\Users\mrn\source\repos\XMLPars\XMLPars\obj\Debug\XMLPars.pdb

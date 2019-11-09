@@ -1,0 +1,29 @@
+<items>
+  <item>
+    <name>foo</name>
+    <children>
+      <item>
+        <name>foo2</name>
+        <children>
+          <item>
+            <name>foo45</name>
+          </item>
+          <item>
+            <name>foo46</name>
+          </item>
+          <item>
+            <name>foo45</name>
+            <children>
+              <item>
+                <name>foo45</name>
+              </item>
+            </children>
+          </item>
+        </children>
+      </item>
+    </children>
+  </item>
+  <item>
+    <name>loremIpsum</name>
+  </item>
+</items>
